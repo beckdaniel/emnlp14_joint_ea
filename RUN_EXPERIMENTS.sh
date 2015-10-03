@@ -53,17 +53,20 @@ echo "RUNNING EXPERIMENTS..."
 
 echo "SVM..."
 mkdir -p results/svm
-python scripts/svm.py $TRAIN_DATA $TEST_DATA results/svm
+#python scripts/svm.py $TRAIN_DATA $TEST_DATA results/svm
 echo ""
 
 echo "SINGLE GP..."
 mkdir -p results/single_gp
-python scripts/single_gp.py $TRAIN_DATA $TEST_DATA results/single_gp
+#python scripts/single_gp.py $TRAIN_DATA $TEST_DATA results/single_gp
 echo ""
 
 #python scripts/icm_gp.py combined
 #python scripts/icm_gp.py combined+
-#python scripts/icm_gp.py rank 1
+echo "ICM GP RANK 1..."
+mkdir -p results/rank_1
+python scripts/icm_gp.py $TRAIN_DATA $TEST_DATA results/rank_1 rank 1
+echo ""
 #python scripts/icm_gp.py rank 2
 #python scripts/icm_gp.py rank 3
 #python scripts/icm_gp.py rank 4
