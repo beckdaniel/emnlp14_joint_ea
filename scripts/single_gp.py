@@ -4,7 +4,7 @@ from sklearn.metrics import mean_absolute_error as MAE
 from sklearn.metrics import mean_squared_error as MSE
 from scipy.stats.stats import pearsonr
 from preprocess import EMOS, EMO_DICT
-from util import print_results
+from util import print_results, save_results
 import sys
 import math
 import GPy
@@ -39,8 +39,10 @@ def single_gp_experiment(train_data, test_data):
 if __name__ == "__main__":
     TRAIN_DATA = sys.argv[1]
     TEST_DATA = sys.argv[2]
+    RESULTS_DIR = sys.argv[3]
     train_data = scipy.io.loadmat(TRAIN_DATA)['out']
     test_data = scipy.io.loadmat(TEST_DATA)['out']
     maes, rmses, pearsons, all_pearson = single_gp_experiment(train_data, test_data)
+    save_results(maes, rmses, pearsons, all_pearson, RESULTS_DIR)
     print_results(maes, rmses, pearsons, all_pearson)
     

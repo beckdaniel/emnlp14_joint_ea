@@ -47,10 +47,20 @@ fi
 echo ""
 
 # Experiments are here, you can comment thes ones you
-# don't want to run
+# don't want to run.
+echo "RUNNING EXPERIMENTS..."
 
-#python scripts/svm.py $TRAIN_DATA $TEST_DATA
-python scripts/single_gp.py $TRAIN_DATA $TEST_DATA
+
+echo "SVM..."
+mkdir -p results/svm
+python scripts/svm.py $TRAIN_DATA $TEST_DATA results/svm
+echo ""
+
+echo "SINGLE GP..."
+mkdir -p results/single_gp
+python scripts/single_gp.py $TRAIN_DATA $TEST_DATA results/single_gp
+echo ""
+
 #python scripts/icm_gp.py combined
 #python scripts/icm_gp.py combined+
 #python scripts/icm_gp.py rank 1
