@@ -13,8 +13,10 @@ https://web.eecs.umich.edu/~mihalcea/downloads.html#affective
 You also need to install the following Python libraries (and their dependencies):
 
 - Scikit-learn (pip install scikit-learn)
-- NLTK (pip install nltk)
 - GPy (pip install gpy)
+- NLTK (pip install nltk)
+- Inside NLTK, download the WordNet Corpus for the lemmatizer
+  (python -c "import nltk; nltk.download()")
 
 (PRO Tip: use a virtualenv for this =D)
 

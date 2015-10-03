@@ -1,17 +1,17 @@
 import numpy as np
 import nltk
-from nlkt.tokenize import wordpunct_tokenize
+from nltk.tokenize import wordpunct_tokenize
 
 # Some constants. The weird order in the EMO list
 # is to facilitate the coregionalization matrix plotting
 EMOS = ['sadness','fear','anger','disgust','surprise','joy']
 EMO_DICT = {}
-EMO_DICT['anger'] = 1
-EMO_DICT['disgust'] = 2
-EMO_DICT['fear'] = 3
-EMO_DICT['joy'] = 4
-EMO_DICT['sadness'] = 5
-EMO_DICT['surprise'] = 6
+EMO_DICT['anger'] = 0
+EMO_DICT['disgust'] = 1
+EMO_DICT['fear'] = 2
+EMO_DICT['joy'] = 3
+EMO_DICT['sadness'] = 4
+EMO_DICT['surprise'] = 5
 
 
 def preprocess_sent(sent, lemmatizer):
@@ -35,14 +35,16 @@ def read_sents_file(sents_file, train, test):
     For this reason "train" + "test must be < 1001,
     otherwise the sets will overlap.
     """
-    data = np.loadtxt(sents_file, delimiter='\t', dtype=object)
+    data = np.loadtxt(sents_file, delimiter='_', dtype=object)
     train_sents = {}
     test_sents = {}
+    data_size = data.shape[0]
+    wnl = nltk.stem.WordNetLemmatizer()
     for i in xrange(data.shape[0]):
-        sent = preprocess(data[i][1])
+        sent = preprocess_sent(data[i][1], wnl)
         if i < train:
             train_sents[int(data[i][0])] = sent
-        elif i >= test:
+        elif i >= (data_size - test):
             test_sents[int(data[i][0])] = sent
     return train_sents, test_sents
 
@@ -100,13 +102,33 @@ def build_data(sents_file, labels_file, train, test):
     train_feats, test_feats = build_feat_vectors(train_sents, train_labels,
                                                  test_sents, test_labels,
                                                  word_dict)
-    train_data = {}
-    test_data = {}
+    #train_data = {}
+    #test_data = {}
+    train_data = np.zeros(shape=(len(EMOS), train_feats.shape[0],
+                                 train_feats.shape[1] + 1))
+    test_data = np.zeros(shape=(len(EMOS), test_feats.shape[0],
+                                test_feats.shape[1] + 1))
     for emo in EMOS:
         emo_id = EMO_DICT[emo]
-        train_data[emo] = np.concatenate((train_feats, 
-                                          train_labels[:,emo_id:emo_id+1]), axis=1)
-        test_data[emo] = np.concatenate((test_feats, 
-                                         test_labels[:,emo_id:emo_id+1]), axis=1)
+        train_data[emo_id] = np.concatenate((train_feats, 
+                                             train_labels[:,emo_id:emo_id+1]), axis=1)
+        test_data[emo_id] = np.concatenate((test_feats, 
+                                            test_labels[:,emo_id:emo_id+1]), axis=1)
     return train_data, test_data
     
+
+if __name__ == "__main__":
+    import sys
+    import scipy.io
+    SENTS_FILE = sys.argv[1]
+    LABELS_FILE = sys.argv[2]
+    TRAIN = int(sys.argv[3])
+    TEST = int(sys.argv[4])
+    TRAIN_DUMP = sys.argv[5]
+    TEST_DUMP = sys.argv[6]
+    train_data, test_data = build_data(SENTS_FILE, LABELS_FILE, TRAIN, TEST)
+    # Numpy savetxt does not work with 3D tensors so we use
+    # Matlab files for that instead.
+    scipy.io.savemat(TRAIN_DUMP, mdict={'out': train_data})
+    scipy.io.savemat(TEST_DUMP, mdict={'out': test_data})
+
