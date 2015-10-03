@@ -46,10 +46,11 @@ else
 fi
 echo ""
 
-# Experiments are here, you can comment 
+# Experiments are here, you can comment thes ones you
+# don't want to run
 
-python scripts/svm.py $TRAIN_DATA $TEST_DATA
-#python scripts/single_gp.py
+#python scripts/svm.py $TRAIN_DATA $TEST_DATA
+python scripts/single_gp.py $TRAIN_DATA $TEST_DATA
 #python scripts/icm_gp.py combined
 #python scripts/icm_gp.py combined+
 #python scripts/icm_gp.py rank 1
