@@ -109,10 +109,10 @@ def build_data(sents_file, labels_file, train, test):
     test_data = np.zeros(shape=(len(EMOS), test_feats.shape[0],
                                 test_feats.shape[1] + 1))
     for emo in EMOS:
-        emo_id = EMO_DICT[emo]
-        train_data[emo_id] = np.concatenate((train_feats, 
+        emo_id = EMO_DICT[emo] + 1
+        train_data[emo_id - 1] = np.concatenate((train_feats, 
                                              train_labels[:,emo_id:emo_id+1]), axis=1)
-        test_data[emo_id] = np.concatenate((test_feats, 
+        test_data[emo_id - 1] = np.concatenate((test_feats, 
                                             test_labels[:,emo_id:emo_id+1]), axis=1)
     return train_data, test_data
     

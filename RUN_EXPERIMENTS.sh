@@ -30,6 +30,8 @@ echo ""
 
 TRAIN=100
 TEST=900
+TRAIN_DATA=data/exp1/train_data.mat
+TEST_DATA=data/exp1/test_data.mat
 
 # Preprocess dataset with the values we used in the
 # experiments, turning them into 3-D tensors 
@@ -38,11 +40,23 @@ echo "BUILDING TENSORS..."
 mkdir -p data/exp1
 if [[ ! -f data/exp1/train_data.mat ]]; then
     python scripts/preprocess.py $SENTS_FILE $LABELS_FILE $TRAIN $TEST \
-	data/exp1/train_data.mat data/exp1/test_data.mat
+	 $TRAIN_DATA $TEST_DATA
 else
     echo "Tensors already built."
 fi
 echo ""
+
+# Experiments are here, you can comment 
+
+python scripts/svm.py $TRAIN_DATA $TEST_DATA
+#python scripts/single_gp.py
+#python scripts/icm_gp.py combined
+#python scripts/icm_gp.py combined+
+#python scripts/icm_gp.py rank 1
+#python scripts/icm_gp.py rank 2
+#python scripts/icm_gp.py rank 3
+#python scripts/icm_gp.py rank 4
+#python scripts/icm_gp.py rank 5
 
 
 ##########################
