@@ -103,9 +103,6 @@ runExperiments1() {
 
 };
 
-# Comment here if you want to skip these.
-runExperiments1
-
 ##########################
 # 2) Data size experiments
 ##########################
@@ -165,15 +162,11 @@ runExperiments2() {
 
 };
 
-# Comment here if you want to skip these.
-#runExperiments2
-
-
 #############################
 # 3) Score distribution plots
 #############################
 
-runExperiment3() {
+runExperiments3() {
     if [[ ! -f preds/single_gp.tsv ]]; then
 	echo "Need to run Experiment 1 first"
     else
@@ -186,4 +179,10 @@ runExperiment3() {
 	
 }
 
-runExperiment3
+
+# Comment/uncomment as you like. Be aware that runExperiment2
+# can take quite a long time.
+
+runExperiments1
+#runExperiments2
+runExperiments3
