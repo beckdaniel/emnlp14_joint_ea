@@ -23,59 +23,131 @@ echo ""
 # 1) Performance experiments
 ############################
 
-echo "############################"
-echo "# 1) Performance experiments"
-echo "############################"
-echo ""
+runExperiments1() {
 
-TRAIN=100
-TEST=900
-TRAIN_DATA=data/exp1/train_data.mat
-TEST_DATA=data/exp1/test_data.mat
+    echo "############################"
+    echo "# 1) Performance experiments"
+    echo "############################"
+    echo ""
 
-# Preprocess dataset with the values we used in the
-# experiments, turning them into 3-D tensors 
-# (emotion, sentence, bow + label)
-echo "BUILDING TENSORS..."
-mkdir -p data/exp1
-if [[ ! -f data/exp1/train_data.mat ]]; then
+    TRAIN=100
+    TEST=900
+    TRAIN_DATA=data/exp1/train_data.mat
+    TEST_DATA=data/exp1/test_data.mat
+
+    # Preprocess dataset with the values we used in the
+    # experiments, turning them into 3-D tensors 
+    # (emotion, sentence, bow + label)
+    echo "BUILDING TENSORS..."
+    mkdir -p data/exp1
+    if [[ ! -f data/exp1/train_data.mat ]]; then
     python scripts/preprocess.py $SENTS_FILE $LABELS_FILE $TRAIN $TEST \
-	 $TRAIN_DATA $TEST_DATA
-else
-    echo "Tensors already built."
-fi
-echo ""
+	$TRAIN_DATA $TEST_DATA
+    else
+	echo "Tensors already built."
+    fi
+    echo ""
 
-# Experiments are here, you can comment thes ones you
-# don't want to run.
-echo "RUNNING EXPERIMENTS..."
+    # Experiments are here, you can comment thes ones you
+    # don't want to run.
+    echo "RUNNING EXPERIMENTS 1..."
+    mkdir -p plots
 
+    echo "SVM..."
+    mkdir -p results/svm
+    #python scripts/svm.py $TRAIN_DATA $TEST_DATA results/svm
+    echo ""
 
-echo "SVM..."
-mkdir -p results/svm
-#python scripts/svm.py $TRAIN_DATA $TEST_DATA results/svm
-echo ""
+    echo "SINGLE GP..."
+    mkdir -p results/single_gp
+    #python scripts/single_gp.py $TRAIN_DATA $TEST_DATA results/single_gp
+    echo ""
 
-echo "SINGLE GP..."
-mkdir -p results/single_gp
-#python scripts/single_gp.py $TRAIN_DATA $TEST_DATA results/single_gp
-echo ""
+    #echo "ICM GP COMBINED..."
+    #mkdir -p results/combined
+    #python scripts/icm_gp.py $TRAIN_DATA $TEST_DATA results/combined combined
+    #echo ""
+    
+    echo "ICM GP COMBINED+..."
+    mkdir -p results/combined+
+    #python scripts/icm_gp.py $TRAIN_DATA $TEST_DATA results/combined+ combined+
+    echo ""
 
-#python scripts/icm_gp.py combined
-#python scripts/icm_gp.py combined+
-echo "ICM GP RANK 1..."
-mkdir -p results/rank_1
-python scripts/icm_gp.py $TRAIN_DATA $TEST_DATA results/rank_1 rank 1
-echo ""
-#python scripts/icm_gp.py rank 2
-#python scripts/icm_gp.py rank 3
-#python scripts/icm_gp.py rank 4
-#python scripts/icm_gp.py rank 5
+    for i in `seq 1`; do
+	echo "ICM GP RANK $i..."
+	mkdir -p results/rank_$i
+	python scripts/icm_gp.py $TRAIN_DATA $TEST_DATA results/rank_$i plots rank $i
+	echo ""
+    done
+};
 
+# Comment here if you want to skip these.
+runExperiments1
 
 ##########################
 # 2) Data size experiments
 ##########################
+
+runExperiments2() {
+
+    echo "############################"
+    echo "# 2) Performance experiments"
+    echo "############################"
+    echo ""
+
+    TRAIN=900
+    TEST=100
+    TRAIN_DATA=data/exp2/train_data.mat
+    TEST_DATA=data/exp2/test_data.mat
+
+    # Preprocess dataset with the values we used in the
+    # experiments, turning them into 3-D tensors 
+    # (emotion, sentence, bow + label)
+    echo "BUILDING TENSORS..."
+    mkdir -p data/exp2
+    if [[ ! -f data/exp2/train_data.mat ]]; then
+    python scripts/preprocess.py $SENTS_FILE $LABELS_FILE $TRAIN $TEST \
+	$TRAIN_DATA $TEST_DATA
+    else
+	echo "Tensors already built."
+    fi
+    echo ""
+
+    echo "RUNNING EXPERIMENTS 2..."
+    mkdir -p plots
+
+    if [[! -f results/svm_size ]]; then
+	echo "SVM..."
+	mkdir -p results/svm_size
+	python scripts/svm_size.py $TRAIN_DATA $TEST_DATA results/svm_size
+	echo ""
+    else
+	echo "SVM results already calculated."
+    fi
+
+    if [[! -f results/single_gp_size ]]; then
+	echo "SINGLE GP..."
+	mkdir -p results/single_gp_size
+	python scripts/single_gp_size.py $TRAIN_DATA $TEST_DATA results/single_gp_size
+	echo ""
+    else
+	echo "Single GP results already calculated."
+    fi
+
+    if [[! -f results/rank_5_size ]]; then
+	echo "ICM GP RANK 5"
+	mkdir -p results/rank_5_size
+	python scripts/icm_gp_size.py $TRAIN_DATA $TEST_DATA results/rank_5_size rank 5
+	echo ""
+    else
+	echo "ICM GP rank 5 results already calculated."
+    fi
+
+};
+
+# Comment here if you want to skip these.
+runExperiments2
+
 
 #############################
 # 3) Score distribution plots

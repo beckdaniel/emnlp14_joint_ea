@@ -6,12 +6,12 @@ from nltk.tokenize import wordpunct_tokenize
 # is to facilitate the coregionalization matrix plotting
 EMOS = ['sadness','fear','anger','disgust','surprise','joy']
 EMO_DICT = {}
-EMO_DICT['anger'] = 0
-EMO_DICT['disgust'] = 1
-EMO_DICT['fear'] = 2
-EMO_DICT['joy'] = 3
-EMO_DICT['sadness'] = 4
-EMO_DICT['surprise'] = 5
+EMO_DICT['anger'] = 1
+EMO_DICT['disgust'] = 2
+EMO_DICT['fear'] = 3
+EMO_DICT['joy'] = 4
+EMO_DICT['sadness'] = 5
+EMO_DICT['surprise'] = 6
 
 
 def preprocess_sent(sent, lemmatizer):
@@ -108,12 +108,12 @@ def build_data(sents_file, labels_file, train, test):
                                  train_feats.shape[1] + 1))
     test_data = np.zeros(shape=(len(EMOS), test_feats.shape[0],
                                 test_feats.shape[1] + 1))
-    for emo in EMOS:
-        emo_id = EMO_DICT[emo] + 1
-        train_data[emo_id - 1] = np.concatenate((train_feats, 
-                                             train_labels[:,emo_id:emo_id+1]), axis=1)
-        test_data[emo_id - 1] = np.concatenate((test_feats, 
-                                            test_labels[:,emo_id:emo_id+1]), axis=1)
+    for i, emo in enumerate(EMOS):
+        emo_id = EMO_DICT[emo]
+        train_data[i] = np.concatenate((train_feats, 
+                                        train_labels[:,emo_id:emo_id+1]), axis=1)
+        test_data[i] = np.concatenate((test_feats, 
+                                       test_labels[:,emo_id:emo_id+1]), axis=1)
     return train_data, test_data
     
 

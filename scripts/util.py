@@ -1,6 +1,7 @@
 import numpy as np
 import os
 from preprocess import EMOS
+import matplotlib.pyplot as plt
 
 
 def save_results(maes, rmses, pearsons, all_pearson, results_dir):
@@ -27,3 +28,20 @@ def print_results(maes, rmses, pearsons, all_pearson):
     print 'RMSE\t' + '\t'.join(['%.4f' % v for v in rmses_to_print])
     print 'Pearson ' + '\t'.join(['%.4f' % v for v in ps_to_print])
 
+
+def plot_coreg_matrix(B, output_file):
+    """
+    Plots the coregionalization matrix in a heatmap format.
+    """
+    fig, ax = plt.subplots()
+    ax.set_xticklabels(EMOS, minor=False)
+    ax.set_yticklabels(EMOS, minor=False)
+    ax.invert_yaxis()
+    ax.xaxis.tick_top()
+    heatmap = ax.pcolor(B, cmap=plt.cm.hot)
+    cbar = plt.colorbar(heatmap)
+    for tick in ax.xaxis.get_majorticklabels():
+        tick.set_horizontalalignment("left")
+    for tick in ax.yaxis.get_majorticklabels():
+        tick.set_verticalalignment("top")
+    plt.savefig(output_file)
