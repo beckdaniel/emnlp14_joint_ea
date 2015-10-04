@@ -97,6 +97,10 @@ runExperiments1() {
 	    echo "ICM GP RANK $i results already calculated."
 	fi
     done
+
+    # Wrap final pearson results and print them in a friendly format
+    python scripts/print_pearsons.py results > results/final_pearsons.tsv
+
 };
 
 # Comment here if you want to skip these.
