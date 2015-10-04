@@ -44,8 +44,8 @@ def icm_gp_experiment(train_data, test_data, model, rank):
     if model == "combined":
         m['ICM.B.kappa'].tie_together()
     print m
-    #m.optimize_restarts(messages=False, max_iters=100, robust=True)
-    m.optimize(max_iters=100)
+    m.optimize_restarts(messages=False, max_iters=100, robust=True)
+    #m.optimize(max_iters=100)
     print m
     W = m['ICM.B.W']
     kappa = m['ICM.B.kappa']
@@ -67,29 +67,35 @@ def icm_gp_experiment(train_data, test_data, model, rank):
         all_labels = np.concatenate((all_labels, emo_labels.flatten()))
         all_preds = np.concatenate((all_preds, emo_preds.flatten()))
     all_pearson = pearsonr(all_preds, all_labels)[0]
-    return maes, rmses, pearsons, all_pearson, B
+    return maes, rmses, pearsons, all_pearson, all_preds, B
 
 
 if __name__ == "__main__":
     TRAIN_DATA = sys.argv[1]
     TEST_DATA = sys.argv[2]
     RESULTS_DIR = sys.argv[3]
-    PLOTS_DIR = sys.argv[4]
-    MODEL = sys.argv[5]
+    PREDS_DIR = sys.argv[4]
+    PLOTS_DIR = sys.argv[5]
+    MODEL = sys.argv[6]
     if MODEL == "rank":
-        RANK = int(sys.argv[6])
+        RANK = int(sys.argv[7])
     else:
         RANK = 1
     train_data = scipy.io.loadmat(TRAIN_DATA)['out']
     test_data = scipy.io.loadmat(TEST_DATA)['out']
-    maes, rmses, pearsons, all_pearson, B = icm_gp_experiment(train_data, test_data,
-                                                              MODEL, RANK)
-    print_results(maes, rmses, pearsons, all_pearson)
-    save_results(maes, rmses, pearsons, all_pearson, RESULTS_DIR)
+    maes, rmses, pearsons, all_pearson, all_preds, B = icm_gp_experiment(train_data,
+                                                                         test_data,
+                                                                         MODEL, RANK)
     if MODEL == "rank":
+        preds_name = '_'.join([MODEL, str(RANK) + '.tsv'])
         plot_name = '_'.join([MODEL, str(RANK), 'matrix.png'])
     else:
+        preds_name = MODEL + '.tsv'
         plot_name = '_'.join([MODEL, 'matrix.png'])
+    np.savetxt(os.path.join(PREDS_DIR, preds_name), all_preds)
+    print_results(maes, rmses, pearsons, all_pearson)
+    save_results(maes, rmses, pearsons, all_pearson, RESULTS_DIR)
+
     plot_coreg_matrix(B, os.path.join(PLOTS_DIR, plot_name))
     
     

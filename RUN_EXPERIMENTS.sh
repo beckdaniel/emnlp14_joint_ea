@@ -51,33 +51,51 @@ runExperiments1() {
     # Experiments are here, you can comment thes ones you
     # don't want to run.
     echo "RUNNING EXPERIMENTS 1..."
-    mkdir -p plots
+    mkdir -p results
+    mkdir -p preds
+    mkdir -p plots/matrices
 
-    echo "SVM..."
-    mkdir -p results/svm
-    #python scripts/svm.py $TRAIN_DATA $TEST_DATA results/svm
-    echo ""
+    if [[ ! -f preds/svm.tsv ]]; then
+	echo "SVM..."
+	mkdir -p results/svm
+	python scripts/svm.py $TRAIN_DATA $TEST_DATA results/svm preds
+	echo ""
+    else
+	echo "SVM results already calculated."
+    fi
 
-    echo "SINGLE GP..."
-    mkdir -p results/single_gp
-    #python scripts/single_gp.py $TRAIN_DATA $TEST_DATA results/single_gp
-    echo ""
+    if [[ ! -f preds/single_gp.tsv ]]; then
+	echo "SINGLE GP..."
+	mkdir -p results/single_gp
+	python scripts/single_gp.py $TRAIN_DATA $TEST_DATA results/single_gp preds
+	echo ""
+    else
+	echo "Single GP results already calculated."
+    fi
 
     #echo "ICM GP COMBINED..."
     #mkdir -p results/combined
     #python scripts/icm_gp.py $TRAIN_DATA $TEST_DATA results/combined combined
     #echo ""
     
-    echo "ICM GP COMBINED+..."
-    mkdir -p results/combined+
-    #python scripts/icm_gp.py $TRAIN_DATA $TEST_DATA results/combined+ combined+
-    echo ""
-
-    for i in `seq 1`; do
-	echo "ICM GP RANK $i..."
-	mkdir -p results/rank_$i
-	python scripts/icm_gp.py $TRAIN_DATA $TEST_DATA results/rank_$i plots rank $i
+    if [[ ! -f preds/combined+.tsv ]]; then
+	echo "ICM GP COMBINED+..."
+	mkdir -p results/combined+
+	python scripts/icm_gp.py $TRAIN_DATA $TEST_DATA results/combined+ preds plots/matrices combined+
 	echo ""
+    else
+	echo "ICM GP COMBINED+ results already calculated."
+    fi
+
+    for i in `seq 5`; do
+	if [[ ! -f preds/rank_$i.tsv ]]; then
+	    echo "ICM GP RANK $i..."
+	    mkdir -p results/rank_$i
+	    python scripts/icm_gp.py $TRAIN_DATA $TEST_DATA results/rank_$i preds plots/matrices rank $i
+	    echo ""
+	else
+	    echo "ICM GP RANK $i results already calculated."
+	fi
     done
 };
 
@@ -91,7 +109,7 @@ runExperiments1
 runExperiments2() {
 
     echo "############################"
-    echo "# 2) Performance experiments"
+    echo "# 2) Data size experiments"
     echo "############################"
     echo ""
 
@@ -115,29 +133,27 @@ runExperiments2() {
 
     echo "RUNNING EXPERIMENTS 2..."
     mkdir -p plots
+    mkdir -p results
 
-    if [[! -f results/svm_size ]]; then
+    if [[ ! -f results/svm_size.tsv ]]; then
 	echo "SVM..."
-	mkdir -p results/svm_size
-	python scripts/svm_size.py $TRAIN_DATA $TEST_DATA results/svm_size
+	python scripts/size.py $TRAIN_DATA $TEST_DATA results svm
 	echo ""
     else
 	echo "SVM results already calculated."
     fi
 
-    if [[! -f results/single_gp_size ]]; then
+    if [[ ! -f results/single_gp_size.tsv ]]; then
 	echo "SINGLE GP..."
-	mkdir -p results/single_gp_size
-	python scripts/single_gp_size.py $TRAIN_DATA $TEST_DATA results/single_gp_size
+	python scripts/size.py $TRAIN_DATA $TEST_DATA results single_gp
 	echo ""
     else
 	echo "Single GP results already calculated."
     fi
 
-    if [[! -f results/rank_5_size ]]; then
+    if [[ ! -f results/icm_gp_size.tsv ]]; then
 	echo "ICM GP RANK 5"
-	mkdir -p results/rank_5_size
-	python scripts/icm_gp_size.py $TRAIN_DATA $TEST_DATA results/rank_5_size rank 5
+	python scripts/size.py $TRAIN_DATA $TEST_DATA results icm_gp rank 5
 	echo ""
     else
 	echo "ICM GP rank 5 results already calculated."
@@ -146,9 +162,24 @@ runExperiments2() {
 };
 
 # Comment here if you want to skip these.
-runExperiments2
+#runExperiments2
 
 
 #############################
 # 3) Score distribution plots
 #############################
+
+runExperiment3() {
+    if [[ ! -f preds/single_gp.tsv ]]; then
+	echo "Need to run Experiment 1 first"
+    else
+	echo "Plotting score distributions"
+
+	mkdir -p plots/dists
+	TEST_DATA=data/exp1/test_data.mat
+	python scripts/plot_dists.py $TEST_DATA preds plots/dists
+    fi
+	
+}
+
+runExperiment3
